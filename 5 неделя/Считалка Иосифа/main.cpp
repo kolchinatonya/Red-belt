@@ -9,17 +9,25 @@
 using namespace std;
 
 template <typename RandomIt>
-void MakeJosephusPermutation(RandomIt first, RandomIt last, uint32_t step_size) {
-  list<typename RandomIt::value_type> pool(first, last);
-  size_t cur_pos = 0;
-  while (!pool.empty()) {
-    *(first++) = pool[cur_pos];
-    pool.erase(pool.begin() + cur_pos);
-    if (pool.empty()) {
-      break;
+void MakeJosephusPermutation(RandomIt first, RandomIt last,
+                             uint32_t step_size) {
+    list<typename RandomIt::value_type> pool;
+    for (auto it = first; it != last; ++it) {
+        pool.push_back(move(*it));
     }
-    cur_pos = (cur_pos + step_size - 1) % pool.size();
-  }
+    auto cur_pos = pool.begin();
+    while (!pool.empty()) {
+        *(first++) = move(*cur_pos);
+        if (pool.size() == 1) {
+            break;
+        }
+        const auto next_pos  = next(cur_pos) == pool.end() ? pool.begin() : next(cur_pos);
+        pool.erase(cur_pos);
+        cur_pos = next_pos;
+        for (uint32_t step_index = 1; step_index < step_size; ++step_index) {
+            cur_pos = next(cur_pos) == pool.end() ? pool.begin() : next(cur_pos);
+        }
+    }
 }
 
 vector<int> MakeTestVector() {
